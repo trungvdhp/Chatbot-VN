@@ -16,12 +16,12 @@ See readme.md for instruction on how to run the starter code.
 """
 
 # parameters for processing the dataset
-DATA_PATH = 'D:/Chatbot-VN/chatbot/data/cornell movie-dialogs corpus'
-CONVO_FILE = 'movie_conversations.txt'
-LINE_FILE = 'movie_lines.txt'
+DATA_PATH = 'D:/Chatbot-VN/chatbot-vn/data/opensubtitles'
+CONVO_FILE = 'conversations1.txt'
+#LINE_FILE = 'movie_lines.txt'
 OUTPUT_FILE = 'output_convo.txt'
-PROCESSED_PATH = 'D:/Chatbot-VN/chatbot/processed'
-CPT_PATH = 'D:/Chatbot-VN/chatbot/checkpoints'
+PROCESSED_PATH = 'D:/Chatbot-VN/chatbot-vn/processed'
+CPT_PATH = 'D:/Chatbot-VN/chatbot-vn/checkpoints'
 
 THRESHOLD = 2
 
@@ -30,7 +30,7 @@ UNK_ID = 1
 START_ID = 2
 EOS_ID = 3
 
-TESTSET_SIZE = 25000
+TESTSET_SIZE = 5
 
 # model parameters
 """ Train encoder length distribution:
@@ -48,7 +48,7 @@ These buckets size seem to work the best
 # BUCKETS = [(8, 10), (12, 14), (16, 19), (23, 26), (39, 43)]
 
 # BUCKETS = [(8, 10), (12, 14), (16, 19)]
-BUCKETS = [(16, 19)]
+BUCKETS = [(6, 8)]
 
 NUM_LAYERS = 3
 HIDDEN_SIZE = 256
@@ -58,5 +58,5 @@ LR = 0.5
 MAX_GRAD_NORM = 5.0
 
 NUM_SAMPLES = 512
-ENC_VOCAB = 24464
-DEC_VOCAB = 24751
+ENC_VOCAB = 16616
+DEC_VOCAB = 19348

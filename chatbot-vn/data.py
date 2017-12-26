@@ -20,6 +20,7 @@ from __future__ import print_function
 import os
 import random
 import re
+import codecs
 
 import numpy as np
 
@@ -63,6 +64,31 @@ def question_answers(id2line, convos):
     assert len(questions) == len(answers)
     return questions, answers
 
+def question_answer():
+    """ Divide the dataset into sets: questions and answers. """
+    file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
+    questions, answers = [], []
+    with codecs.open(file_path, encoding='utf-8', mode='r') as f:
+        q=True
+        count=0
+        for line in f.readlines():
+            count+=1
+            if len(line) > 0:
+                #print(line)
+                if "?" in line:
+                    if q:
+                        questions.append(line)
+                        q=False
+                    else:
+                        questions[-1] = line
+                else:
+                    if not q:
+                        answers.append(line)
+                        q=True
+        print(len(questions))
+        print(len(answers))
+    return questions, answers
+    
 def prepare_dataset(questions, answers):
     # create path to store all the train & test encoder & decoder
     make_dir(config.PROCESSED_PATH)
@@ -73,7 +99,7 @@ def prepare_dataset(questions, answers):
     filenames = ['train.enc', 'train.dec', 'test.enc', 'test.dec']
     files = []
     for filename in filenames:
-        files.append(open(os.path.join(config.PROCESSED_PATH, filename),'w'))
+        files.append(codecs.open(os.path.join(config.PROCESSED_PATH, filename), encoding='utf-8', mode='w'))
 
     for i in range(len(questions)):
         if i in test_ids:
@@ -117,7 +143,7 @@ def build_vocab(filename, normalize_digits=True):
     out_path = os.path.join(config.PROCESSED_PATH, 'vocab.{}'.format(filename[-3:]))
 
     vocab = {}
-    with open(in_path, 'r') as f:
+    with codecs.open(in_path, encoding='utf-8', mode='r') as f:
         for line in f.readlines():
             for token in basic_tokenizer(line):
                 if not token in vocab:
@@ -125,7 +151,7 @@ def build_vocab(filename, normalize_digits=True):
                 vocab[token] += 1
 
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
-    with open(out_path, 'w') as f:
+    with codecs.open(out_path, encoding='utf-8', mode='w') as f:
         f.write('<pad>' + '\n')
         f.write('<unk>' + '\n')
         f.write('<s>' + '\n')
@@ -134,7 +160,7 @@ def build_vocab(filename, normalize_digits=True):
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
                 print(word + '-' + str(index))
-                with open('D:/Chatbot-VN/chatbot/config.py', 'a') as cf:
+                with open('D:/Chatbot-VN/chatbot-vn/config.py', 'a') as cf:
                     if filename[-3:] == 'enc':
                         cf.write('ENC_VOCAB = ' + str(index) + '\n')
                     else:
@@ -144,7 +170,7 @@ def build_vocab(filename, normalize_digits=True):
             index += 1
 
 def load_vocab(vocab_path):
-    with open(vocab_path, 'r') as f:
+    with codecs.open(vocab_path, encoding='utf-8', mode='r') as f:
         words = f.read().splitlines()
     return words, {words[i]: i for i in range(len(words))}
 
@@ -159,8 +185,8 @@ def token2id(data, mode):
     out_path = data + '_ids.' + mode
 
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
-    in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r')
-    out_file = open(os.path.join(config.PROCESSED_PATH, out_path), 'w')
+    in_file = codecs.open(os.path.join(config.PROCESSED_PATH, in_path), encoding='utf-8', mode='r')
+    out_file = codecs.open(os.path.join(config.PROCESSED_PATH, out_path), encoding='utf-8', mode= 'w')
     
     lines = in_file.read().splitlines()
     for line in lines:
@@ -176,9 +202,9 @@ def token2id(data, mode):
 
 def prepare_raw_data():
     print('Preparing raw data into train set and test set ...')
-    id2line = get_lines()
-    convos = get_convos()
-    questions, answers = question_answers(id2line, convos)
+    #id2line = get_lines()
+    #convos = get_convos()
+    questions, answers = question_answer()
     prepare_dataset(questions, answers)
 
 def process_data():
@@ -191,8 +217,8 @@ def process_data():
     token2id('test', 'dec')
 
 def load_data(enc_filename, dec_filename, max_training_size=None):
-    encode_file = open(os.path.join(config.PROCESSED_PATH, enc_filename), 'r')
-    decode_file = open(os.path.join(config.PROCESSED_PATH, dec_filename), 'r')
+    encode_file = codecs.open(os.path.join(config.PROCESSED_PATH, enc_filename), encoding='utf-8', mode='r')
+    decode_file = codecs.open(os.path.join(config.PROCESSED_PATH, dec_filename), encoding='utf-8', mode='r')
     encode, decode = encode_file.readline(), decode_file.readline()
     data_buckets = [[] for _ in config.BUCKETS]
     i = 0
