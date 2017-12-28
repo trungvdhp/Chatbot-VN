@@ -17,12 +17,16 @@ See readme.md for instruction on how to run the starter code.
 from __future__ import division
 from __future__ import print_function
 
-import argparse
+#import argparse
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import random
 import sys
 import time
+import codecs
+
+from socket import AF_INET, socket, SOCK_STREAM
+from threading import Thread
 
 import numpy as np
 import tensorflow as tf
@@ -186,7 +190,7 @@ def _construct_response(output_logits, inv_dec_vocab):
     
     This is a greedy decoder - outputs are just argmaxes of output_logits.
     """
-    print(output_logits[0])
+    #print(output_logits[0])
     outputs = [int(np.argmax(logit, axis=1)) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
     if config.EOS_ID in outputs:
@@ -194,9 +198,9 @@ def _construct_response(output_logits, inv_dec_vocab):
     # Print out sentence corresponding to outputs.
     return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs])
 
-def chat():
-    """ in test mode, we don't to create the backward path
-    """
+"""Chat server"""
+def accept_incoming_connections():
+    """Setup model"""
     _, enc_vocab = data.load_vocab(os.path.join(config.PROCESSED_PATH, 'vocab.enc'))
     inv_dec_vocab, _ = data.load_vocab(os.path.join(config.PROCESSED_PATH, 'vocab.dec'))
 
@@ -204,47 +208,91 @@ def chat():
     model.build_graph()
 
     saver = tf.train.Saver()
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    _check_restore_parameters(sess, saver)
+    
+    output_file = codecs.open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), encoding='utf-8', mode='a+')
+    """Sets up handling for incoming clients."""
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s has connected." % client_address)
+        client.send(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"))
+        addresses[client] = client_address
+        Thread(target=handle_client, args=(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_file,)).start()
+    output_file.write('=============================================\n')
+    output_file.close()
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        _check_restore_parameters(sess, saver)
-        output_file = open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), 'a+')
-        # Decode from standard input.
-        max_length = config.BUCKETS[-1][0]
-        print('Welcome to TensorBro. Say something. Enter to exit. Max length is', max_length)
-        while True:
-            line = _get_user_input()
-            if len(line) > 0 and line[-1] == '\n':
-                line = line[:-1]
-            if line == '':
-                break
-            output_file.write('HUMAN ++++ ' + line + '\n')
-            # Get token-ids for the input sentence.
-            token_ids = data.sentence2id(enc_vocab, str(line))
-            if (len(token_ids) > max_length):
-                print('Max length I can handle is:', max_length)
-                line = _get_user_input()
-                continue
-            # Which bucket does it belong to?
-            bucket_id = _find_right_bucket(len(token_ids))
-            # Get a 1-element batch to feed the sentence to the model.
-            encoder_inputs, decoder_inputs, decoder_masks = data.get_batch([(token_ids, [])], 
-                                                                            bucket_id,
-                                                                            batch_size=1)
-            # Get output logits for the sentence.
-            _, _, output_logits = run_step(sess, model, encoder_inputs, decoder_inputs,
-                                           decoder_masks, bucket_id, True)
-            response = _construct_response(output_logits, inv_dec_vocab)
-            print(response)
-            output_file.write('BOT ++++ ' + response + '\n')
-        output_file.write('=============================================\n')
-        output_file.close()
+def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_file):  # Takes client socket as argument.
+    """Handles a single client connection."""
+    name = client.recv(BUFSIZ).decode("utf8")
+    max_length = config.BUCKETS[-1][0]
+    msg = 'Welcome %s! Max length is %d. If you ever want to quit, type {quit} to exit.' % (name, max_length)
+    client.send(bytes(msg, "utf8"))
+    msg = "%s has joined the chat!" % name
+    broadcast(bytes(msg, "utf8"))
+    clients[client] = name
+    # Decode from standard input.
+    while True:
+        msg = client.recv(BUFSIZ)
+        if msg != bytes("{quit}", "utf8"):
+            broadcast(msg, name+": ")
+        else:
+            client.send(bytes("{quit}", "utf8"))
+            client.close()
+            del clients[client]
+            broadcast(bytes("%s has left the chat." % name, "utf8"))
+            break
+        output_file.write(u'HUMAN ++++ ' + msg.decode("utf8") + '\n')
+        # Get token-ids for the input sentence.
+        token_ids = data.sentence2id(enc_vocab, str(msg))
+        print(token_ids)
+        if (len(token_ids) > max_length):
+            broadcast(bytes("Max length I can handle is %d" % max_length, "utf8"))
+            continue
+        # Which bucket does it belong to?
+        bucket_id = _find_right_bucket(len(token_ids))
+        # Get a 1-element batch to feed the sentence to the model.
+        encoder_inputs, decoder_inputs, decoder_masks = data.get_batch([(token_ids, [])], 
+                                                                        bucket_id,
+                                                                        batch_size=1)
+        # Get output logits for the sentence.
+        _, _, output_logits = run_step(sess, model, encoder_inputs, decoder_inputs,
+                                       decoder_masks, bucket_id, True)
+        response = _construct_response(output_logits, inv_dec_vocab)
+        broadcast(bytes(response, "utf8"), "BOT: ")
+        output_file.write('BOT ++++ ' + response + '\n')
+
+def broadcast(msg, prefix=""):  # prefix is for name identification.
+    """Broadcasts a message to all the clients."""
+
+    for sock in clients:
+        sock.send(bytes(prefix, "utf8")+msg)
+  
+clients = {}
+addresses = {}
+HOST = ''
+PORT = 33000
+BUFSIZ = 1024
+ADDR = (HOST, PORT)
+SERVER = socket(AF_INET, SOCK_STREAM)
+SERVER.bind(ADDR)
+
+def chat():
+    """ in test mode, we don't to create the backward path
+    """
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    ACCEPT_THREAD = Thread(target=accept_incoming_connections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+    SERVER.close()
 
 def main():
-    parser = argparse.ArgumentParser()
+    """parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'chat'},
                         default='train', help="mode. if not specified, it's in the train mode")
-    args = parser.parse_args()
+    args = parser.parse_args()"""
 
     if not os.path.isdir(config.PROCESSED_PATH):
         data.prepare_raw_data()
@@ -253,10 +301,11 @@ def main():
     # create checkpoints folder if there isn't one already
     data.make_dir(config.CPT_PATH)
 
-    if args.mode == 'train':
+    """if args.mode == 'train':
         train()
     elif args.mode == 'chat':
-        chat()
+        chat()"""
+    chat()
 
 if __name__ == '__main__':
     main()

@@ -51,7 +51,6 @@ def get_convos():
                 for line in parts[3][1:-2].split(', '):
                     convo.append(line[1:-1])
                 convos.append(convo)
-
     return convos
 
 def question_answers(id2line, convos):
@@ -64,50 +63,54 @@ def question_answers(id2line, convos):
     assert len(questions) == len(answers)
     return questions, answers
 
-def question_answer():
+def get_question_answers():
     """ Divide the dataset into sets: questions and answers. """
     file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
-    questions, answers = [], []
+    convos = []
     with codecs.open(file_path, encoding='utf-8', mode='r') as f:
-        q=True
-        count=0
+        max_length = config.BUCKETS[-1][0] - 1
+        convo = []
+        while True:
+            question = f.readline()
+            #if question.isupper():
+                #continue
+            if len(basic_tokenizer(question)) <= max_length:
+                convo.append(question)
+                break;
         for line in f.readlines():
-            count+=1
-            if len(line) > 0:
-                #print(line)
-                if "?" in line:
-                    if q:
-                        questions.append(line)
-                        q=False
-                    else:
-                        questions[-1] = line
-                else:
-                    if not q:
-                        answers.append(line)
-                        q=True
-        print(len(questions))
-        print(len(answers))
-    return questions, answers
+            #if line.isupper():
+                #continue
+            if len(basic_tokenizer(line)) <= max_length:
+                #if line not in answers:
+                convo.append(line)
+                if not convo in convos:
+                    convos.append(convo)
+                convo = []
+                convo.append(line)
+            else:
+                continue
+        print(len(convos))
+    return convos
     
-def prepare_dataset(questions, answers):
+def prepare_dataset(convos):
     # create path to store all the train & test encoder & decoder
     make_dir(config.PROCESSED_PATH)
     
     # random convos to create the test set
-    test_ids = random.sample([i for i in range(len(questions))],config.TESTSET_SIZE)
+    test_ids = random.sample([i for i in range(len(convos))],config.TESTSET_SIZE)
     
     filenames = ['train.enc', 'train.dec', 'test.enc', 'test.dec']
     files = []
     for filename in filenames:
         files.append(codecs.open(os.path.join(config.PROCESSED_PATH, filename), encoding='utf-8', mode='w'))
 
-    for i in range(len(questions)):
+    for i in range(len(convos)):
         if i in test_ids:
-            files[2].write(questions[i] + '\n')
-            files[3].write(answers[i] + '\n')
+            files[2].write(convos[i][0])
+            files[3].write(convos[i][1])
         else:
-            files[0].write(questions[i] + '\n')
-            files[1].write(answers[i] + '\n')
+            files[0].write(convos[i][0])
+            files[1].write(convos[i][1])
 
     for file in files:
         file.close()
@@ -159,7 +162,7 @@ def build_vocab(filename, normalize_digits=True):
         index = 4
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
-                print(word + '-' + str(index))
+                #print(word + '-' + str(index))
                 with open('D:/Chatbot-VN/chatbot-vn/config.py', 'a') as cf:
                     if filename[-3:] == 'enc':
                         cf.write('ENC_VOCAB = ' + str(index) + '\n')
@@ -204,8 +207,8 @@ def prepare_raw_data():
     print('Preparing raw data into train set and test set ...')
     #id2line = get_lines()
     #convos = get_convos()
-    questions, answers = question_answer()
-    prepare_dataset(questions, answers)
+    convos = get_question_answers()
+    prepare_dataset(convos)
 
 def process_data():
     print('Preparing data to be model-ready ...')
