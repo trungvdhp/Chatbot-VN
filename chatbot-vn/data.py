@@ -68,7 +68,7 @@ def get_question_answers():
     file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
     convos = []
     with codecs.open(file_path, encoding='utf-8', mode='r') as f:
-        max_length = config.BUCKETS[-1][0] - 1
+        max_length = config.BUCKETS[-1][0]
         convo = []
         while True:
             question = f.readline()
