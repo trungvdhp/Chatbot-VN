@@ -214,6 +214,7 @@ def accept_incoming_connections():
     
     output_file = codecs.open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), encoding='utf-8', mode='a+')
     """Sets up handling for incoming clients."""
+    print("Waiting for connection...")
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s has connected." % client_address)
@@ -245,7 +246,8 @@ def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_f
             break
         output_file.write(u'HUMAN ++++ ' + msg.decode("utf8") + '\n')
         # Get token-ids for the input sentence.
-        token_ids = data.sentence2id(enc_vocab, str(msg))
+        token_ids = data.sentence2id(enc_vocab, msg.decode("utf8"))
+        print(msg.decode("utf8"))
         print(token_ids)
         if (len(token_ids) > max_length):
             broadcast(bytes("Max length I can handle is %d" % max_length, "utf8"))
@@ -282,7 +284,6 @@ def chat():
     """ in test mode, we don't to create the backward path
     """
     SERVER.listen(5)
-    print("Waiting for connection...")
     ACCEPT_THREAD = Thread(target=accept_incoming_connections)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
@@ -300,12 +301,15 @@ def main():
     print('Data ready!')
     # create checkpoints folder if there isn't one already
     data.make_dir(config.CPT_PATH)
-
+    mode = input("Input mode (train|chat): ")
     """if args.mode == 'train':
         train()
     elif args.mode == 'chat':
         chat()"""
-    chat()
+    if mode == 'train':
+        train()
+    else:
+        chat()
 
 if __name__ == '__main__':
     main()

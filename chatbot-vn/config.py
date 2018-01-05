@@ -16,12 +16,12 @@ See readme.md for instruction on how to run the starter code.
 """
 
 # parameters for processing the dataset
-DATA_PATH = 'D:/Chatbot-VN/chatbot-vn/data/opensubtitles'
+DATA_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/data/opensubtitles'
 CONVO_FILE = 'conversations.txt_1'
 #LINE_FILE = 'movie_lines.txt'
 OUTPUT_FILE = 'output_convo.txt'
-PROCESSED_PATH = 'D:/Chatbot-VN/chatbot-vn/processed'
-CPT_PATH = 'D:/Chatbot-VN/chatbot-vn/checkpoints'
+PROCESSED_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/processed'
+CPT_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/checkpoints'
 
 THRESHOLD = 2
 
@@ -30,7 +30,7 @@ UNK_ID = 1
 START_ID = 2
 EOS_ID = 3
 
-TESTSET_SIZE = 25000
+TESTSET_SIZE = 100000
 
 # model parameters
 """ Train encoder length distribution:
@@ -58,21 +58,5 @@ LR = 0.5
 MAX_GRAD_NORM = 5.0
 
 NUM_SAMPLES = 512
-ENC_VOCAB = 16643
-DEC_VOCAB = 19377
-ENC_VOCAB = 19809
-DEC_VOCAB = 19785
-ENC_VOCAB = 7505
-DEC_VOCAB = 7489
-ENC_VOCAB = 6638
-DEC_VOCAB = 6652
-ENC_VOCAB = 6609
-DEC_VOCAB = 6582
-ENC_VOCAB = 2161
-DEC_VOCAB = 2154
-ENC_VOCAB = 13103
-DEC_VOCAB = 13121
-ENC_VOCAB = 11865
-DEC_VOCAB = 11870
-ENC_VOCAB = 11843
-DEC_VOCAB = 11854
+ENC_VOCAB = 11591
+DEC_VOCAB = 11571

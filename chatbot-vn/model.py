@@ -127,6 +127,7 @@ class ChatBotModel(object):
         pass
 
     def build_graph(self):
+        tf.reset_default_graph()
         self._create_placeholders()
         self._inference()
         self._create_loss()
