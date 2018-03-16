@@ -212,17 +212,15 @@ def accept_incoming_connections():
     sess.run(tf.global_variables_initializer())
     _check_restore_parameters(sess, saver)
     
-    output_file = codecs.open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), encoding='utf-8', mode='a+')
     """Sets up handling for incoming clients."""
     print("Waiting for connection...")
     while True:
         client, client_address = SERVER.accept()
+        output_file = codecs.open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE+str(client_address)+'.txt'), encoding='utf-8', mode='a+')
         print("%s:%s has connected." % client_address)
-        client.send(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"))
+        client.send(bytes("Greetings from the BOT! Now type your name and press enter!", "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_file,)).start()
-    output_file.write('=============================================\n')
-    output_file.close()
 
 def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_file):  # Takes client socket as argument.
     """Handles a single client connection."""
@@ -236,19 +234,27 @@ def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_f
     # Decode from standard input.
     while True:
         msg = client.recv(BUFSIZ)
+        
+        try:
+            print(u'%s: ' % name + msg.decode("utf8"))
+        except OSError:
+            print(u'%s: ' % name)
+            
         if msg != bytes("{quit}", "utf8"):
             broadcast(msg, name+": ")
         else:
-            client.send(bytes("{quit}", "utf8"))
+            print(u"%s has left the chat." % name)
+            #client.send(bytes("{quit}", "utf8"))
             client.close()
             del clients[client]
+            
             broadcast(bytes("%s has left the chat." % name, "utf8"))
             break
         output_file.write(u'HUMAN ++++ ' + msg.decode("utf8") + '\n')
         # Get token-ids for the input sentence.
         token_ids = data.sentence2id(enc_vocab, msg.decode("utf8"))
-        print(msg.decode("utf8"))
-        print(token_ids)
+        
+        #print(token_ids)
         if (len(token_ids) > max_length):
             broadcast(bytes("Max length I can handle is %d" % max_length, "utf8"))
             continue
@@ -263,17 +269,20 @@ def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_f
                                        decoder_masks, bucket_id, True)
         response = _construct_response(output_logits, inv_dec_vocab)
         broadcast(bytes(response, "utf8"), "BOT: ")
+        print(response)
         output_file.write('BOT ++++ ' + response + '\n')
+    output_file.write('=============================================\n')
+    output_file.close()
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
     """Broadcasts a message to all the clients."""
 
-    for sock in clients:
-        sock.send(bytes(prefix, "utf8")+msg)
+    for client in clients:
+        client.send(bytes(prefix, "utf8")+msg)
   
 clients = {}
 addresses = {}
-HOST = ''
+HOST = '127.0.0.1'
 PORT = 33000
 BUFSIZ = 1024
 ADDR = (HOST, PORT)

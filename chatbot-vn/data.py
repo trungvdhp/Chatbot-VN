@@ -68,8 +68,10 @@ def get_question_answers():
     file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
     convos = []
     with codecs.open(file_path, encoding='utf-8', mode='r') as f:
-        max_length = config.BUCKETS[-1][0]
+        max_length = config.BUCKETS[-1][1]
+        print('Max length=' + str(max_length))
         convo = []
+        
         while True:
             question = f.readline()
             #if question.isupper():
@@ -77,11 +79,11 @@ def get_question_answers():
             if len(basic_tokenizer(question)) <= max_length:
                 convo.append(question)
                 break;
+                
         for line in f.readlines():
             #if line.isupper():
                 #continue
             if len(basic_tokenizer(line)) <= max_length:
-                #if line not in answers:
                 convo.append(line)
                 if not convo in convos:
                     convos.append(convo)
@@ -89,7 +91,9 @@ def get_question_answers():
                 convo.append(line)
             else:
                 continue
-        print(len(convos))
+            if len(convos) >= config.MAX_CONVOS_SIZE:
+                break
+        #print(len(convos))
     return convos
     
 def prepare_dataset(convos):
@@ -101,6 +105,7 @@ def prepare_dataset(convos):
     
     filenames = ['train.enc', 'train.dec', 'test.enc', 'test.dec']
     files = []
+    
     for filename in filenames:
         files.append(codecs.open(os.path.join(config.PROCESSED_PATH, filename), encoding='utf-8', mode='w'))
 
@@ -114,6 +119,50 @@ def prepare_dataset(convos):
 
     for file in files:
         file.close()
+
+def analyse_dataset():
+    # create path to store all the train & test encoder & decoder
+    make_dir(config.PROCESSED_PATH)
+    filenames = ['train.enc', 'train.dec', 'test.enc', 'test.dec']
+    files = []
+    
+    for filename in filenames:
+        files.append(codecs.open(os.path.join(config.PROCESSED_PATH, filename), encoding='utf-8', mode='r'))
+    bucket_count = int(input("Input number of buckets: "))
+    for i in range(0, 4):
+        print(filenames[i])
+        wordcounts = {}
+        line_count = 0
+        for line in files[i].readlines():
+            line_count += 1
+            wordcount = len(basic_tokenizer(line))
+            if not wordcount in wordcounts:
+                wordcounts[wordcount] = 0
+            wordcounts[wordcount] += 1
+        avg = line_count/bucket_count
+        start = 1
+        end = 1
+        size = 0
+        rs = ""
+        span = avg/(bucket_count*2)
+        for k, v in sorted(wordcounts.items()):
+            if size + v < avg + span:
+                size += v
+                end = k
+                if end==len(wordcounts):
+                     rs += '(' + str(start) + ',' + str(end) + '):' + str(size) + ', '
+            else:
+                if k==len(wordcounts):
+                    size += v
+                rs += '(' + str(start) + ',' + str(end) + '):' + str(size) + ', '
+                start = k
+                end = k
+                size = v
+        print('Total: ' + str(line_count))
+        print('Average ' + str(avg) + ' per bucket')
+        print(' '.join('(' + str(k) + ',' + str(v) + ')' for k, v in sorted(wordcounts.items())))
+        print(rs)
+        files[i].close()
 
 def make_dir(path):
     """ Create a directory if there isn't one already. """
@@ -132,6 +181,7 @@ def basic_tokenizer(line, normalize_digits=True):
     words = []
     _WORD_SPLIT = re.compile("([.,!?\"'-<>:;)(])")
     _DIGIT_RE = re.compile(r"\d")
+    
     for fragment in line.strip().lower().split():
         for token in re.split(_WORD_SPLIT, fragment):
             if not token:
@@ -163,7 +213,7 @@ def build_vocab(filename, normalize_digits=True):
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
                 #print(word + '-' + str(index))
-                with open('D:/Chatbot-VN/chatbot-vn/config.py', 'a') as cf:
+                with open(config.CONFIG_PATH, 'a') as cf:
                     if filename[-3:] == 'enc':
                         cf.write('ENC_VOCAB = ' + str(index) + '\n')
                     else:
@@ -284,3 +334,4 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 if __name__ == '__main__':
     prepare_raw_data()
     process_data()
+    #analyse_dataset()
