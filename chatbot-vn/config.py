@@ -16,13 +16,13 @@ See readme.md for instruction on how to run the starter code.
 """
 
 # parameters for processing the dataset
-DATA_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/data/opensubtitles'
+DATA_PATH = 'D:/Chatbot-VN/chatbot-vn/data/opensubtitles'
 CONVO_FILE = 'conversations.txt'
 #LINE_FILE = 'movie_lines.txt'
 OUTPUT_FILE = 'output_convo_'
-PROCESSED_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/processed'
-CPT_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/checkpoints'
-CONFIG_PATH = 'D:/TrungVuDinh/Chatbot-VN/chatbot-vn/config.py'
+PROCESSED_PATH = 'D:/Chatbot-VN/chatbot-vn/processed'
+CPT_PATH = 'D:/Chatbot-VN/chatbot-vn/checkpoints'
+CONFIG_PATH = 'D:/Chatbot-VN/chatbot-vn/config.py'
 THRESHOLD = 2
 MAX_CONVOS_SIZE = 150000
 PAD_ID = 0
