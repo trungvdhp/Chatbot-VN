@@ -18,24 +18,19 @@ from __future__ import print_function
 
 import time
 
-#import numpy as np
+import numpy as np
 import tensorflow as tf
 
 import config
 
-setattr(tf.contrib.rnn.GRUCell, '__deepcopy__', lambda self, _: self)
-setattr(tf.contrib.rnn.BasicLSTMCell, '__deepcopy__', lambda self, _: self)
-setattr(tf.contrib.rnn.MultiRNNCell, '__deepcopy__', lambda self, _: self)
-
-class ChatBotModel(object):
+class ChatBotModel:
     def __init__(self, forward_only, batch_size):
         """forward_only: if set, we do not construct the backward pass in the model.
         """
         print('Initialize new model')
         self.fw_only = forward_only
         self.batch_size = batch_size
-        self.dtype = tf.float32
-    
+
     def _create_placeholders(self):
         # Feeds for inputs. It's a list of placeholders
         print('Create placeholders')
@@ -43,12 +38,12 @@ class ChatBotModel(object):
                                for i in range(config.BUCKETS[-1][0])]
         self.decoder_inputs = [tf.placeholder(tf.int32, shape=[None], name='decoder{}'.format(i))
                                for i in range(config.BUCKETS[-1][1] + 1)]
-        self.decoder_masks = [tf.placeholder(self.dtype, shape=[None], name='mask{}'.format(i))
+        self.decoder_masks = [tf.placeholder(tf.float32, shape=[None], name='mask{}'.format(i))
                               for i in range(config.BUCKETS[-1][1] + 1)]
 
-        # Our targets are decoder inputs shifted by one (to ignore <s> symbol)
+        # Our targets are decoder inputs shifted by one (to ignore <GO> symbol)
         self.targets = self.decoder_inputs[1:]
-        
+
     def _inference(self):
         print('Create inference')
         # If we use sampled softmax, we need an output projection.
@@ -58,35 +53,25 @@ class ChatBotModel(object):
             b = tf.get_variable('proj_b', [config.DEC_VOCAB])
             self.output_projection = (w, b)
 
-        def sampled_loss(labels, logits):
+        def sampled_loss(logits, labels):
             labels = tf.reshape(labels, [-1, 1])
-            
-            #return tf.nn.sampled_softmax_loss(tf.transpose(w), b, labels, logits, 
-                                              #config.NUM_SAMPLES, config.DEC_VOCAB)
-            # We need to compute the sampled_softmax_loss using 32bit floats to
-            # avoid numerical instabilities.
-            local_w = tf.cast(tf.transpose(w), self.dtype)
-            local_b = tf.cast(b, self.dtype)
-            local_inputs = tf.cast(logits, self.dtype)
-            return tf.cast(
-                tf.nn.sampled_softmax_loss(
-                    weights=local_w,
-                    biases=local_b,
-                    labels=labels,
-                    inputs=local_inputs,
-                    num_sampled=config.NUM_SAMPLES,
-                    num_classes=config.DEC_VOCAB),
-                self.dtype)
-            
+            return tf.nn.sampled_softmax_loss(weights=tf.transpose(w), 
+                                              biases=b, 
+                                              inputs=logits, 
+                                              labels=labels, 
+                                              num_sampled=config.NUM_SAMPLES, 
+                                              num_classes=config.DEC_VOCAB)
         self.softmax_loss_function = sampled_loss
 
         single_cell = tf.contrib.rnn.GRUCell(config.HIDDEN_SIZE)
-        self.cell = tf.contrib.rnn.MultiRNNCell([single_cell] * config.NUM_LAYERS)
+        self.cell = tf.contrib.rnn.MultiRNNCell([single_cell for _ in range(config.NUM_LAYERS)])
 
     def _create_loss(self):
         print('Creating loss... \nIt might take a couple of minutes depending on how many buckets you have.')
         start = time.time()
         def _seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
+            setattr(tf.contrib.rnn.GRUCell, '__deepcopy__', lambda self, _: self)
+            setattr(tf.contrib.rnn.MultiRNNCell, '__deepcopy__', lambda self, _: self)
             return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
                     encoder_inputs, decoder_inputs, self.cell,
                     num_encoder_symbols=config.ENC_VOCAB,
@@ -148,7 +133,6 @@ class ChatBotModel(object):
         pass
 
     def build_graph(self):
-        tf.reset_default_graph()
         self._create_placeholders()
         self._inference()
         self._create_loss()
