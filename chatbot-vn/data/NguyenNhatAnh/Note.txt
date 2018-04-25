@@ -1,0 +1,108 @@
+﻿\n^[^-].*\n => \n remove all line do not start with -
+(?-is)^[-]\s{0,1}(.*\n) => $1 remove all leading -
+(?-is)([^.!?]+[.!?]).*\n => $1\n get first sentence in line
+Tìm tất cả câu có dạng ", -" thay bằng " -
+(?-is)(^[^-]+)\s-\s[^-]+-\s(.*\n) => $1. $2 câu có 3 dấu -, ghép phần đầu, phần giữa bỏ, thêm dấu chấm và dấu cách ghép với phần cuối.
+“ replace by blank
+” replace by blank
+… replace by ...
+find '... -' and delete sentence after ...
+remove last sentence ending with : and before starting with ... => (.*\.\.\.)\s[^:]+:\n => $1\n
+remove last sentence ending with any and before starting with ... - => (.*\.\.\.)\s-\s.+\n => $1\n
+find (.*)\s-\s.+\n
+replace - by _
+Remove line end with : \n^[^:]+:\n => \n
+(.+\,)\s-\s.*\s-(\s.*\n) => $1$2 ghép
+(.+\,)\s-\s.*\n => $1\n
+/ => .
+(.+),\s-\s.*\n => $1.\n
+... chỉnh sửa các dòng chỉ có dấu 3 chấm
+(.*)\.\.\.(.+\n) => $1$2
+Tìm dòng toàn số xóa đi (năm sáng tác)
+Xóa ký tự đặc biệt lỗi: €
+Xóa toàn bộ các kí tự trắng ở đầu dòng
+Sửa các từ có dấu *
+------------------------------
+56-Bàn có năm chỗ ngồi
+59-Bí mật của tóc tiên
+60-Bồ câu không đưa thư
+61-Bong bóng lên trời
+62-Buổi chiều windows
+65-Cho tôi một vé đi tuổi thơ
+66-Chú bé rắc rối
+67-Chúc một ngày tốt lành
+68-Chuyện xứ Lang biang
+69-Cô gái đến từ hôm qua
+70-Có hai con mèo bên cửa sổ
+71-Còn chút gì để nhớ
+73-Đảo mộng mơ
+74-
+75-
+76
+79
+80
+83
+84
+87
+88
+91
+===============================
+01-Nhà ảo thuật
+02-Những con gấu bông
+03-Thám tử nghiệp dư
+04-Ông thầy nóng tính
+05-Xin lỗi mày tai to
+07-Bí mật kẻ trộm
+08-Bắt đền hoa sứ
+Bài toán đố cuối năm
+Bàn cờ có năm chỗ ngồi
+Bí ẩn của mốt
+Cánh đàn ông chúng mình
+Cầu chúc hai người hạnh phúc
+Chú bé rắc rối
+Con ruồi
+Đi qua hoa cúc
+Hạ đỏ
+Hoa hồng xứ khác
+Làm chồng khổ thật
+Làm gì có một ông bố như thế
+Mắt biếc
+Một phút trách nhiệm
+Nghệ thuật bậc thầy
+Ngôi trường mọi khi
+Ngồi khóc trên cây
+Ngôi sao nhỏ
+Nhân vật nữ của tôi : sai font
+Những cô em gái
+Nữ sinh
+Quán Gò đi lên
+Thằng quỷ nhỏ
+Tivi ,Tu lanh hay Cat-xet
+Trước vòng chung kết
+Chuyện xứ Langbiang
+Thương nhớ trà Long
+1. Ctrl+H replace ^b with blank
+2. Format Paragraph, indentation => 0 and special None, spacing single
+3. Replace ^= with -, 
+replace duplicate space with one space multiple times until can not replace, 
+replace ^t with one space
+replace one space before dot, comma, ?, !, :, ;
+4. Copy to emeditor and replace by regex \r?\n\s*\n with \n multiple times until can not remove all empty lines
+5. Remove all line start with number., \n^[0-9]{1,2}\..*\n by \n multiple times
+6. Remove all line start with number: \n^[0-9]{1,4}\n by \n
+7. Remove all tab: Replace "	" with single space " "
+8. Remove all oOo: find in notepad++ oOo and - o O o - and enter if it is between line
+9. Remove all line include http: \n.*http.*\n => \n
+10. Remove all line *: \n\**\n => \n
+11. Remove all "Content" line: \nContents\n => \n
+12. Noted that line start with “: add - before mannual, and three dot: ...
+13. Add - before '(?-is)(^[-][^.]*\.\s)([^:]+:)' => '$1- $2'
+14. Xóa link Ebook, http, www, bản quyền...
+15. - Tao đi bỏ bánh mì. - Xong rồi, ghé mày chơi! Tôi mở cửa rào: 21086 81-100
+11. find all line start with lowercase : (?-is)^[a-z]=> and find all pattent: (?-is)^[\-].*\r\n^[a-z] fix by mannual: 61-80: 
+search ^[-]\s[^:]+:\n
+205 - Sao em nghĩ thế? - Chị Mắt Nai tròn mắt nai. - Bạn cười:
+Trường hợp câu hội thoại có 2 dấu gạch - thì tách theo dấu gạch, lấy phần đầu tiên
+Trường hợp câu hội thoại có 3 dấu gạch - thì tách theo dấu gạch, loại bỏ phần thứ 2, ghép phần 1 và phần 3 thành 1 câu hội thoại
+Trường hợp câu hội thoại có 4 dấu gạch - thì tách theo dấu gạch, lấy phần thứ nhất làm câu hội thoại 1, phần thứ hai làm câu hội thoại 2 và xử lý như trường hợp có 3 dấu gạch
+3524 Lỗi Buổi chiều Windows chương 12
