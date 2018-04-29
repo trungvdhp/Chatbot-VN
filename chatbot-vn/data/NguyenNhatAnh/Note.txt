@@ -1,4 +1,120 @@
-﻿\n^[^-].*\n => \n remove all line do not start with -
+﻿Tiểu Long
+Vần Ngũ, Ngũ Vần
+Bội Linh
+Đầm Sen
+Thùy Vân
+Văn Thánh (1)
+Bãi Dứa (2)
+Hoàng Phi Hồng (1)
+Oshin Otoca (1)
+Trịnh Công_Sơn (2)
+Bãi Sau (2)
+Bạch Vân (10)
+Hồ Chí Minh (9)
+Tai To (70)
+Văn Châu (138)
+Hồng Lam 2
+Ngọc Diệu 3
+Tàu Hủ 1
+Lam Sơn 2
+Năm Chiểu 4
+Tắc_Kè Bông 59
+Tắc Kè Bông 5
+Xóm Dưới 10
+Năm Sang 6
+Dế Lửa 41
+Đơn Hùng Tín 2
+Cửu Ngô 1
+Cả Tham 2
+Tây Tạng 1
+Họa Mi 6
+Bò Lục 27
+Bò Trổng 18
+Bò Tứ 5
+Dũng Cò 30
+Há Chảy 1
+Bò Viên 1
+Bốn Loan 5
+Xuyến Chi 20
+Quý ròm 130
+Đỗ Lễ 49
+Nhị Thiên Đường 1
+Lan Kiều 31
+Khăn_Quàng Đỏ 8
+Tam Quốc 3
+hướng Đông 4
+hướng Tây 2
+hướng Nam 3
+hướng Bắc 6
+Hồng Kông 3
+Sáu Giảng 7
+Trần_Nguyên Hãn 2
+Mèo Con 7
+Mèo Con_ở 1
+Tô Định 2
+Tô Đông Pha 1
+Ngưu Ma_Vương 1
+Út Cưng	8
+Lý Liên Kiệt 2
+Kim Liên 7
+Nguyễn Du 3
+Trần Hưng Đạo 15
+Kỳ Hòa 1
+Trư Bát_Giới 5
+Kim Siêu_Quần 2
+Bao Công 11
+maỳ 1
+Tề Thiên 4
+Trần Bội_Linh 5
+Bàng Thái_sư 5
+Bao Chửng 2
+Bao Thanh_Thiên 6
+Phủ Khai_Phong 1
+Hợp Phì 1
+Hiền Hòa 121
+Lý Thường_Kiệt 1
+Tống Bình Chiêm 1
+Lê Đại Hành 2
+Lý Thái_Tổ 2
+Đài_truyền hình 1
+Tần Thủy Hoàng 4
+
+-----------------------------------------------------------------
+có_thế võ => có thế_võ
+gấu bông => gấu_bông
+bọn trẻ => bọn_trẻ
+tụi nhóc => tụi_nhóc
+tụi nó => tụi_nó
+bọn nó => bọn_nó
+dao_khắc => dao khắc
+giặt đồ => giặt_đồ
+quý ông => quý_ông
+quý bà => quý_bà
+con dao => con_dao
+ngón tay => ngón_tay
+bọn nhóc => bọn_nhóc
+bọn trộm => bọn_trộm
+học thêm => học_thêm
+lớp chuyên => lớp_chuyên
+bọn quỷ => bọn_quỷ
+người ta => người_ta
+tụi mày => tụi_mày
+cái đầu => cái_đầu
+thiết đầu công => thiết_đầu_công
+phía sau => phía_sau
+phía trước => phía_trước
+đằng trước => đằng_trước
+đằng sau => đằng_sau
+dây thừng => dây_thừng
+sợi dây => sợi_dây
+sợi thừng => sợi thừng
+giật dọc => giật_dọc
+hàng chữ => hàng_chữ
+chí lý => chí_lý
+hóa chất => hóa_chất
+ngọn đồi => ngọn_đồi
+----------------------------------------------------------------------------
+\n^[^-].*\n => \n remove all line do not start with -
 (?-is)^[-]\s{0,1}(.*\n) => $1 remove all leading -
 (?-is)([^.!?]+[.!?]).*\n => $1\n get first sentence in line
 Tìm tất cả câu có dạng ", -" thay bằng " -
@@ -22,6 +138,7 @@ Tìm dòng toàn số xóa đi (năm sáng tác)
 Xóa ký tự đặc biệt lỗi: €
 Xóa toàn bộ các kí tự trắng ở đầu dòng
 Sửa các từ có dấu *
+(?-is)(\s[A-ZĐ][^0-9 !?:,.]{0,10})\s([A-ZĐ][^0-9 !?:,.]{0,10}) => $1_$2 : Tìm các cụm danh từ riêng
 ------------------------------
 56-Bàn có năm chỗ ngồi
 59-Bí mật của tóc tiên
@@ -106,3 +223,4 @@ Trường hợp câu hội thoại có 2 dấu gạch - thì tách theo dấu g�
 Trường hợp câu hội thoại có 3 dấu gạch - thì tách theo dấu gạch, loại bỏ phần thứ 2, ghép phần 1 và phần 3 thành 1 câu hội thoại
 Trường hợp câu hội thoại có 4 dấu gạch - thì tách theo dấu gạch, lấy phần thứ nhất làm câu hội thoại 1, phần thứ hai làm câu hội thoại 2 và xử lý như trường hợp có 3 dấu gạch
 3524 Lỗi Buổi chiều Windows chương 12
+-----------------------------------------

@@ -15,7 +15,6 @@ This file contains the code to build the model
 See readme.md for instruction on how to run the starter code.
 """
 from __future__ import print_function
-
 import time
 
 import numpy as np
@@ -137,4 +136,4 @@ class ChatBotModel:
         self._inference()
         self._create_loss()
         self._creat_optimizer()
-        self._create_summary()
+        #self._create_summary()

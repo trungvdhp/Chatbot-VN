@@ -16,21 +16,21 @@ See readme.md for instruction on how to run the starter code.
 """
 
 # parameters for processing the dataset
-DATA_PATH = 'D:/Chatbot-VN/chatbot-vn/data/opensubtitles'
-CONVO_FILE = 'conversations.txt'
+DATA_PATH = 'data'
+CONVO_FILE = 'HoiThoaiSinhVien.txt.seg'
 #LINE_FILE = 'movie_lines.txt'
 OUTPUT_FILE = 'output_convo_'
-PROCESSED_PATH = 'D:/Chatbot-VN/chatbot-vn/processed'
-CPT_PATH = 'D:/Chatbot-VN/chatbot-vn/checkpoints'
-CONFIG_PATH = 'D:/Chatbot-VN/chatbot-vn/config.py'
+PROCESSED_PATH = 'processed'
+CPT_PATH = 'checkpoints'
+CONFIG_PATH = 'config.py'
 THRESHOLD = 2
-MAX_CONVOS_SIZE = 150000
+MAX_CONVOS_SIZE = 10000
 PAD_ID = 0
 UNK_ID = 1
 START_ID = 2
 EOS_ID = 3
 
-TESTSET_SIZE = 25000
+TESTSET_SIZE = 500
 
 # model parameters
 """ Train encoder length distribution:
@@ -48,17 +48,19 @@ These buckets size seem to work the best
 # BUCKETS = [(8, 10), (12, 14), (16, 19), (23, 26), (39, 43)]
 
 # BUCKETS = [(8, 10), (12, 14), (16, 19)]
-BUCKETS = [(2, 4), (4, 6), (6, 8)]
+BUCKETS = [(4, 6), (6, 8), (8, 10), (10, 12), (13, 15), (16, 19)]
            
 NUM_LAYERS = 3
 HIDDEN_SIZE = 256
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 LR = 0.5
 MAX_GRAD_NORM = 5.0
 
-NUM_SAMPLES = 512
-ENC_VOCAB = 7731
-DEC_VOCAB = 7743
-ENC_VOCAB = 9174
-DEC_VOCAB = 9171
+NUM_SAMPLES = 64
+ENC_VOCAB = 1461
+DEC_VOCAB = 1461
+ENC_VOCAB = 1461
+DEC_VOCAB = 1461
+ENC_VOCAB = 1328
+DEC_VOCAB = 1355

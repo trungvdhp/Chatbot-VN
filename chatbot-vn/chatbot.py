@@ -14,9 +14,6 @@ This file contains the code to run the model.
 
 See readme.md for instruction on how to run the starter code.
 """
-from __future__ import division
-from __future__ import print_function
-
 #import argparse
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
@@ -235,10 +232,10 @@ def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_f
     while True:
         msg = client.recv(BUFSIZ)
         
-        try:
-            print(u'%s: ' % name + msg.decode("utf8"))
-        except OSError:
-            print(u'%s: ' % name)
+        #try:
+            #print(u'%s: ' % name + msg.decode("utf8"))
+        #except OSError:
+            #print(u'%s: ' % name)
             
         if msg != bytes("{quit}", "utf8"):
             broadcast(msg, name+": ")
@@ -269,7 +266,7 @@ def handle_client(client, enc_vocab, inv_dec_vocab, model, saver, sess, output_f
                                        decoder_masks, bucket_id, True)
         response = _construct_response(output_logits, inv_dec_vocab)
         broadcast(bytes(response, "utf8"), "BOT: ")
-        print(response)
+        #print(response)
         output_file.write('BOT ++++ ' + response + '\n')
     output_file.write('=============================================\n')
     output_file.close()

@@ -293,12 +293,12 @@ Hay là hôm nay mẹ không nêm bột ngọt vào thức ăn nên con thấy n
 Không phải là quên!
 Ðộc hại ư?
 Em cũng chả nhớ!
-Ðó là chất natri glutamat!
+Ðó là chất natri_glutamat!
 Thế nó độc hại lắm hay sao?
 Con cũng chả rõ!
 Ừ, chứ nếu đã biết chắc là nó độc hại thì trên thế giới chả ai cho sản xuất bột ngọt làm gì!
 Em vẫn thấy sờ sợ thế nào!
-Dùng bột ngọt quen miệng rồi, bây giờ không có nó, cứ thấy món nao cũng nhạt thếch!
+Dùng bột ngọt quen miệng rồi, bây giờ không có nó, cứ thấy món nào cũng nhạt thếch!
 Nếu dùng in ít thì được!
 Thế thì ta cứ dùng, nhưng dùng in ít thôi!
 Không được đâu, ba ơi!

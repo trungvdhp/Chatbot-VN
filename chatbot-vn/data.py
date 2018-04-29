@@ -41,17 +41,22 @@ def get_lines():
 
 def get_convos():
     """ Get conversations from the raw data """
-    file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
-    convos = []
-    with open(file_path, 'r') as f:
-        for line in f.readlines():
-            parts = line.split(' +++$+++ ')
-            if len(parts) == 4:
-                convo = []
-                for line in parts[3][1:-2].split(', '):
-                    convo.append(line[1:-1])
-                convos.append(convo)
-    return convos
+    filenames = []
+    
+    for i in range(1, config.NUM_INPUT_FILES):
+        filenames.append(str(i) + '.txt')
+    output_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
+    f = open(output_path, encoding='utf-8', mode='w')
+    
+    for filename in filenames:
+        file = codecs.open(os.path.join(config.DATA_PATH, filename), encoding='utf-8', mode='r')
+        for line in file.readlines():
+            if line[0] == '-':
+                line = ' '.join(line.split())
+                line = line.split('-')[1][1:] + '\n'
+                f.write(line)
+        file.close()
+    f.close()
 
 def question_answers(id2line, convos):
     """ Divide the dataset into two sets: questions and answers. """
@@ -71,29 +76,17 @@ def get_question_answers():
         max_length = config.BUCKETS[-1][1]
         print('Max length=' + str(max_length))
         convo = []
-        
-        while True:
-            question = f.readline()
-            #if question.isupper():
-                #continue
-            if len(basic_tokenizer(question)) <= max_length:
-                convo.append(question)
-                break;
-                
+    
+        question = f.readline()
+        convo.append(question)
+
         for line in f.readlines():
-            #if line.isupper():
-                #continue
-            if len(basic_tokenizer(line)) <= max_length:
-                convo.append(line)
-                if not convo in convos:
-                    convos.append(convo)
-                convo = []
-                convo.append(line)
-            else:
-                continue
+            convo.append(line)
+            convos.append(convo)
+            convo = []
+            convo.append(line)
             if len(convos) >= config.MAX_CONVOS_SIZE:
                 break
-        #print(len(convos))
     return convos
     
 def prepare_dataset(convos):
@@ -334,4 +327,4 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 if __name__ == '__main__':
     prepare_raw_data()
     process_data()
-    #analyse_dataset()
+    #get_convos()
